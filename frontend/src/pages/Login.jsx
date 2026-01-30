@@ -63,8 +63,15 @@ const Login = () => {
               />
             </div>
 
-            {/* LOGIN BUTTON - BIGGER GAP & GLOW */}
-            <button className="w-4/5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-black font-extrabold py-3 mt-8 transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(0,255,65,0.4)] hover:shadow-[0_0_40px_rgba(0,255,65,0.6)] hover:scale-[1.02] rounded-md text-sm border border-green-400">
+            {/* PHYSICAL SPACER (Matching your h-24) */}
+            <div className="h-24 w-full"></div> 
+
+            {/* LOGIN BUTTON - WHITE BACKGROUND, GREEN TEXT */}
+            <button 
+                id="login-btn-debug" 
+                style={{backgroundColor: '#ffffff', color: '#00ff41'}} 
+                className="w-40 font-extrabold py-3 transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(0,255,65,0.3)] hover:shadow-[0_0_40px_rgba(0,255,65,0.6)] hover:scale-[1.05] rounded-md text-sm"
+            >
               Login
             </button>
 
