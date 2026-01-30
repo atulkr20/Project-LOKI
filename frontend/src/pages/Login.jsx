@@ -1,94 +1,290 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Terminal } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Terminal, Mail, Lock, ChevronRight, Cpu, ArrowRight, ShieldAlert } from 'lucide-react';
 
-const Login = () => {
+export default function Login() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8000/user/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Save Token
+        localStorage.setItem('token', data.token);
+        
+        // Success Delay for Effect
+        setTimeout(() => {
+            alert("ACCESS GRANTED. WELCOME BACK, OPERATOR.");
+            navigate('/dashboard');
+        }, 1000);
+      } else {
+        alert("ACCESS DENIED: " + (data.error || "INVALID CREDENTIALS"));
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert("CONNECTION FAILURE: SERVER UNREACHABLE");
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="h-screen w-full flex items-center justify-center bg-black text-green-500 font-mono relative overflow-hidden">
+    <div style={styles.pageContainer}>
       
-      {/* Background Grid */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none" 
-           style={{ 
-             backgroundImage: 'linear-gradient(#003300 1px, transparent 1px), linear-gradient(90deg, #003300 1px, transparent 1px)', 
-             backgroundSize: '40px 40px' 
-           }}>
+      {/* Background Effects */}
+      <div style={styles.scanline}></div>
+      <div style={styles.gridBackground}></div>
+
+      {/* --- 1. THE HEADER SECTION (Branding) --- */}
+      <div style={styles.brandingSection}>
+        <div style={styles.logoBox}>
+          <Terminal size={40} color="#00ff41" />
+        </div>
+        <h1 style={styles.mainTitle}>PROJECT LOKI</h1>
+        <p style={styles.subTitle}>SECURE_ACCESS_TERMINAL_V2.0.4</p>
       </div>
 
-      {/* THE CARD */}
-      <motion.div 
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.4 }}
-        className="w-[500px] bg-black border border-green-600 shadow-[0_0_50px_rgba(0,255,65,0.2)] relative z-10"
-      >
+      {/* --- 2. THE LOGIN CARD --- */}
+      <div style={styles.window}>
         
-        {/* Header Bar */}
-        <div className="bg-green-900/30 border-b border-green-600 p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Terminal size={16} />
-            <span className="text-xs font-bold tracking-widest">PROJECT LOKI // LOGIN</span>
-          </div>
-          <div className="flex gap-1.5">
-             <div className="w-2 h-2 rounded-full bg-red-500"></div>
-             <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-             <div className="w-2 h-2 rounded-full bg-green-500"></div>
-          </div>
+        {/* Card Header */}
+        <div style={styles.cardHeader}>
+            <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                <ChevronRight size={20} color="#00ff41" />
+                <span style={styles.cardTitle}>AUTHENTICATE_USER</span>
+            </div>
+            <ShieldAlert size={24} color="#00ff41" style={{opacity: 0.2}} />
         </div>
 
-        {/* Form Content */}
-        <div className="p-8 flex flex-col items-center">
-          
-          <h2 className="text-2xl font-bold text-white mb-2 tracking-wider">Welcome Back</h2>
-          <p className="text-xs text-green-400/70 mb-8">Enter your details to access the system</p>
-
-          <form className="w-full flex flex-col items-center space-y-4">
+        {/* Form Body */}
+        <form onSubmit={handleLogin} style={styles.form}>
             
-            {/* Email */}
-            <div className="w-4/5 space-y-1">
-              <label className="text-xs font-bold text-green-600 ml-1">Email Address</label>
-              <input 
-                type="email" 
-                className="w-full bg-gray-900/50 border border-green-800 p-3 text-green-100 placeholder-green-900/50 focus:border-green-400 focus:bg-black focus:outline-none focus:shadow-[0_0_15px_rgba(0,255,65,0.1)] transition-all box-border rounded-md text-sm"
-                placeholder="name@example.com"
-              />
+            {/* EML Input */}
+            <div style={styles.inputContainer}>
+                <div style={styles.iconLabel}>
+                    <Mail size={14} />
+                    <span>EML:</span>
+                </div>
+                <input 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  type="email" 
+                  placeholder="OPERATOR_ID@ADDR.NET"
+                  required
+                  style={styles.input}
+                />
             </div>
 
-            {/* Password */}
-            <div className="w-4/5 space-y-1">
-              <label className="text-xs font-bold text-green-600 ml-1">Password</label>
-              <input 
-                type="password" 
-                className="w-full bg-gray-900/50 border border-green-800 p-3 text-green-100 placeholder-green-900/50 focus:border-green-400 focus:bg-black focus:outline-none focus:shadow-[0_0_15px_rgba(0,255,65,0.1)] transition-all box-border rounded-md text-sm"
-                placeholder="••••••••••••"
-              />
+            {/* PWD Input */}
+            <div style={styles.inputContainer}>
+                <div style={styles.iconLabel}>
+                    <Lock size={14} />
+                    <span>KEY:</span>
+                </div>
+                <input 
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  type="password" 
+                  placeholder="••••••••••••"
+                  required
+                  style={styles.input}
+                />
             </div>
 
-            {/* PHYSICAL SPACER (Matching your h-24) */}
-            <div className="h-24 w-full"></div> 
-
-            {/* LOGIN BUTTON - WHITE BACKGROUND, GREEN TEXT */}
-            <button 
-                id="login-btn-debug" 
-                style={{backgroundColor: '#ffffff', color: '#00ff41'}} 
-                className="w-40 font-extrabold py-3 transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(0,255,65,0.3)] hover:shadow-[0_0_40px_rgba(0,255,65,0.6)] hover:scale-[1.05] rounded-md text-sm"
-            >
-              Login
+            {/* ACTION BUTTON */}
+            <button disabled={loading} style={styles.button}>
+              {loading ? <Cpu size={16} style={{animation: 'spin 1s linear infinite'}} /> : <ArrowRight size={16} />}
+              {loading ? "DECRYPTING..." : "INITIATE_SESSION"}
             </button>
 
-          </form>
+        </form>
+      </div>
 
-          {/* Footer */}
-          <div className="mt-8 text-center text-xs opacity-60">
-            <span>Don't have an account? </span>
-            <Link to="/signup" className="text-green-400 hover:text-white hover:underline ml-1 font-bold">
-              Sign up here
-            </Link>
-          </div>
+      {/* Footer Link */}
+      <div style={styles.footer}>
+        <span>NO CLEARANCE?</span>
+        <Link to="/signup" style={styles.link}>
+           REQUEST IDENTITY
+        </Link>
+      </div>
 
-        </div>
-      </motion.div>
     </div>
   );
-};
+}
 
-export default Login;
+// --- EXACT STYLES (Copied to ensure 100% match) ---
+const styles = {
+  pageContainer: {
+    height: '100vh',
+    width: '100vw',
+    backgroundColor: '#020202',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: '"Courier New", Courier, monospace',
+    color: '#00ff41',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  gridBackground: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundImage: 'linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px)',
+    backgroundSize: '30px 30px',
+    pointerEvents: 'none',
+  },
+  scanline: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, height: '100vh',
+    background: 'linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1))',
+    backgroundSize: '100% 3px',
+    pointerEvents: 'none',
+    zIndex: 5,
+    opacity: 0.3
+  },
+  brandingSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: '40px',
+    zIndex: 10,
+  },
+  logoBox: {
+    width: '80px',
+    height: '80px',
+    border: '2px solid #00ff41',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 0 20px rgba(0, 255, 65, 0.2)',
+    marginBottom: '20px',
+    backgroundColor: 'rgba(0, 20, 0, 0.5)',
+  },
+  mainTitle: {
+    fontSize: '32px',
+    fontWeight: 'bold',
+    letterSpacing: '5px',
+    margin: '0 0 10px 0',
+    textShadow: '0 0 15px rgba(0, 255, 65, 0.6)',
+    color: '#fff',
+  },
+  subTitle: {
+    fontSize: '10px',
+    letterSpacing: '3px',
+    opacity: 0.6,
+    margin: 0,
+  },
+  window: {
+    width: '500px',
+    border: '1px solid rgba(0, 255, 65, 0.5)',
+    boxShadow: '0 0 30px rgba(0, 255, 65, 0.05)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backdropFilter: 'blur(5px)',
+    zIndex: 10,
+    padding: '30px',
+    position: 'relative',
+  },
+  cardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '30px',
+    borderBottom: '1px solid rgba(0, 255, 65, 0.2)',
+    paddingBottom: '15px',
+  },
+  cardTitle: {
+    fontSize: '16px',
+    fontWeight: 'bold',
+    letterSpacing: '2px',
+    color: '#00ff41',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+  },
+  inputContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    border: '1px solid rgba(0, 255, 65, 0.3)',
+    backgroundColor: 'rgba(0, 20, 0, 0.2)',
+    padding: '0 15px',
+    height: '50px',
+    transition: 'border 0.3s ease',
+  },
+  iconLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    width: '80px',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    opacity: 0.8,
+    borderRight: '1px solid rgba(0, 255, 65, 0.2)',
+    marginRight: '15px',
+    height: '60%',
+  },
+  input: {
+    flex: 1,
+    background: 'transparent',
+    border: 'none',
+    color: '#fff',
+    fontFamily: 'inherit',
+    fontSize: '14px',
+    outline: 'none',
+    letterSpacing: '1px',
+    textTransform: 'uppercase',
+  },
+  button: {
+    marginTop: '10px',
+    height: '50px',
+    background: 'transparent',
+    color: '#00ff41',
+    border: '1px solid #00ff41',
+    fontWeight: 'bold',
+    letterSpacing: '2px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+    fontSize: '14px',
+    transition: 'all 0.2s',
+  },
+  footer: {
+    marginTop: '30px',
+    fontSize: '10px',
+    opacity: 0.5,
+    zIndex: 10,
+    display: 'flex',
+    gap: '10px',
+  },
+  link: {
+    color: '#00ff41',
+    textDecoration: 'none',
+    fontWeight: 'bold',
+    borderBottom: '1px solid rgba(0, 255, 65, 0.3)',
+  }
+};

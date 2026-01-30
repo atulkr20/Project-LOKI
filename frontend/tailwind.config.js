@@ -6,16 +6,30 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        'terminal-green': '#00ff41',
-        'terminal-black': '#0c0c0c',
-        'blood-red': '#ff0000',
-      },
       fontFamily: {
-        mono: ['"VT323"', 'monospace'],
+        mono: ['monospace', 'ui-monospace', 'SFMono-Regular']
+      },
+      colors: {
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        loki: "#00ff41", 
+        "loki-dim": "rgba(0, 255, 65, 0.1)",
       },
       animation: {
-        'glitch': 'glitch 1s linear infinite',
+        "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "glitch": "glitch 1s linear infinite",
+        "scanline": "scanline 8s linear infinite",
+      },
+      keyframes: {
+        glitch: {
+          "2%, 64%": { transform: "translate(2px,0) skew(0deg)" },
+          "4%, 60%": { transform: "translate(-2px,0) skew(0deg)" },
+          "62%": { transform: "translate(0,0) skew(5deg)" },
+        },
+        scanline: {
+          "0%": { backgroundPosition: "0% 0%" },
+          "100%": { backgroundPosition: "0% 100%" },
+        },
       },
     },
   },

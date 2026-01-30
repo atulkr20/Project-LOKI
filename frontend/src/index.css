@@ -1,29 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* GLOBAL TERMINAL STYLES */
-body {
-  background-color: #050505; /* Deep Black */
-  color: #00ff41;            /* Terminal Green */
-  font-family: 'VT323', monospace;
-  overflow-x: hidden;
-  margin: 0;
+@layer base {
+  :root {
+    --background: 0 0% 2%;
+    --foreground: 135 100% 50%;
+  }
+  
+  body {
+    @apply bg-[#050505] text-[#00ff41] overflow-x-hidden;
+    /* Removed problematic font-mono from here */
+    background-image: 
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+  }
 }
 
-/* CRT SCANLINE EFFECT */
-.scanlines::before {
-  content: " ";
-  display: block;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-  z-index: 50;
-  background-size: 100% 2px, 3px 100%;
+/* GLOW EFFECTS */
+.text-glow {
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 2px rgba(0, 255, 65, 0.3);
+}
+
+/* --- FIX IS HERE --- */
+/* We use standard CSS instead of @apply for transparency to fix the error */
+.terminal-border {
+  border: 1px solid rgba(0, 255, 65, 0.2); /* Replaces border-[#00ff41]/20 */
+  background-color: rgba(0, 0, 0, 0.4);   /* Replaces bg-black/40 */
+  backdrop-filter: blur(4px);             /* Replaces backdrop-blur-sm */
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.05);
+}
+
+/* SCANLINE ANIMATION */
+.scanline {
+  width: 100%;
+  height: 100px;
+  z-index: 10;
+  background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0, 255, 65, 0.04) 50%, rgba(0,0,0,0) 100%);
+  opacity: 0.1;
+  position: absolute;
+  bottom: 100%;
+  animation: scanline 10s linear infinite;
   pointer-events: none;
+}
+
+@keyframes scanline {
+  0% { bottom: 100%; }
+  100% { bottom: -100%; }
+}
+
+/* GRID BACKGROUND */
+.terminal-grid {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(0, 255, 65, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 255, 65, 0.05) 1px, transparent 1px);
 }
