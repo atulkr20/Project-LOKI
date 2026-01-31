@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const SecurityScan = () => {
   const { shortCode } = useParams();
+  const navigate = useNavigate();
   
   // State
   const [lines, setLines] = useState([]);      // Completed lines
@@ -10,11 +11,11 @@ const SecurityScan = () => {
   const [redirectUrl, setRedirectUrl] = useState(null);
   const [isComplete, setIsComplete] = useState(false);
   
-  // Refs for auto-scroll and fetching
+  // Refs
   const bottomRef = useRef(null);
   const hasFetched = useRef(false);
 
-  // 1. THE LOG SEQUENCE
+  // 1. THE SCRIPT
   const script = [
     "INITIALIZING SYSTEM SCAN...",
     "ESTABLISHING SECURE CHANNEL...",
@@ -26,7 +27,7 @@ const SecurityScan = () => {
     "PREPARING REDIRECT..."
   ];
 
-  // 2. FETCH URL (Silent)
+  // 2. FETCH URL (Silent Background Process)
   useEffect(() => {
     if (hasFetched.current) return;
     hasFetched.current = true;
@@ -37,55 +38,52 @@ const SecurityScan = () => {
         if (res.ok) {
           const data = await res.json();
           setRedirectUrl(data.targetURL);
+        } else {
+          // If link not found, wait a moment then go to 404
+          setTimeout(() => navigate("/404"), 2000); 
         }
       } catch (err) {
         console.error("Connection failed");
+        // Optional: Stay on page and show red error if backend is down
       }
     };
     fetchUrl();
-  }, [shortCode]);
+  }, [shortCode, navigate]);
 
-  // 3. THE "SMOOTH" TYPEWRITER ENGINE
+  // 3. SMOOTH TYPEWRITER ENGINE
   useEffect(() => {
     let lineIndex = 0;
     let charIndex = 0;
     let timeoutId;
 
     const typeChar = () => {
-      // If we finished all lines, stop.
       if (lineIndex >= script.length) {
         setIsComplete(true);
         return;
       }
 
       const targetLine = script[lineIndex];
-
-      // Add next character
       setCurrentLine(targetLine.substring(0, charIndex + 1));
       charIndex++;
 
-      // If line is finished
       if (charIndex > targetLine.length) {
-        // Commit the line to the list
+        // Line finished
         setLines(prev => [...prev, targetLine]);
-        setCurrentLine(""); // Reset typer
+        setCurrentLine(""); 
         lineIndex++;
         charIndex = 0;
-        // Pause briefly between lines (looks more realistic)
-        timeoutId = setTimeout(typeChar, 150); 
+        timeoutId = setTimeout(typeChar, 150); // Pause between lines
       } else {
-        // Type next char fast (30ms)
-        timeoutId = setTimeout(typeChar, 30);
+        // Typing next char
+        timeoutId = setTimeout(typeChar, 30); // Typing speed
       }
     };
 
-    // Start typing
     typeChar();
-
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // 4. REDIRECT TRIGGER
+  // 4. FINAL REDIRECT
   useEffect(() => {
     if (isComplete && redirectUrl) {
       setTimeout(() => {
@@ -94,7 +92,7 @@ const SecurityScan = () => {
     }
   }, [isComplete, redirectUrl]);
 
-  // Auto-scroll always keeps focus at bottom
+  // Auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'auto' });
   }, [currentLine, lines]);
@@ -110,14 +108,13 @@ const SecurityScan = () => {
 
       {/* LOG OUTPUT */}
       <div style={styles.terminalBox}>
-        {/* Render Completed Lines */}
         {lines.map((line, index) => (
           <div key={index} style={styles.logRow}>
-            <span style={styles.timestamp}>[17:00:07]</span>
+            <span className="hidden-mobile" style={styles.timestamp}>[17:00:07]</span>
             <span style={styles.dollar}>$</span>
             <span style={{
               ...styles.message,
-              color: line.includes("ACTIVE") ? '#fff' : '#00ff41', // Highlight important words
+              color: line.includes("ACTIVE") ? '#fff' : '#00ff41',
               fontWeight: line.includes("ACTIVE") ? 'bold' : 'normal'
             }}>
               {line}
@@ -125,10 +122,10 @@ const SecurityScan = () => {
           </div>
         ))}
         
-        {/* Render Currently Typing Line */}
+        {/* Typing Line */}
         {!isComplete && (
           <div style={styles.logRow}>
-            <span style={styles.timestamp}>[17:00:07]</span>
+            <span className="hidden-mobile" style={styles.timestamp}>[17:00:07]</span>
             <span style={styles.dollar}>$</span>
             <span style={styles.message}>{currentLine}</span>
             <span style={styles.cursor}>_</span>
@@ -140,16 +137,23 @@ const SecurityScan = () => {
 
       {/* FOOTER */}
       <div style={styles.footer}>
-        <span>SEC: ALPHA-9</span>
-        <span>ENCRYPTED</span>
-        <span>NODE: LOKI-01</span>
+        <div style={styles.footerCol}>SEC: ALPHA-9</div>
+        <div style={styles.footerCol}>ENCRYPTED</div>
+        <div style={styles.footerCol}>NODE: LOKI-01</div>
       </div>
 
+      {/* RESPONSIVE HACKS */}
+      <style>{`
+        @media (max-width: 600px) {
+          .hidden-mobile { display: none !important; }
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+      `}</style>
     </div>
   );
 };
 
-// --- STYLES ---
+// --- RESPONSIVE STYLES ---
 const styles = {
   container: {
     height: '100vh', width: '100vw',
@@ -163,50 +167,45 @@ const styles = {
     padding: '20px',
     boxSizing: 'border-box'
   },
-
-  // HEADER
   header: {
-    marginBottom: '5vh', // Responsive spacing
+    marginBottom: '5vh',
     textAlign: 'center',
-    width: '100%',
-    maxWidth: '600px'
+    width: '100%', maxWidth: '600px'
   },
   title: {
-    fontSize: 'clamp(24px, 5vw, 32px)', // Scales for mobile
+    fontSize: 'clamp(24px, 5vw, 32px)',
     fontWeight: '900',
     letterSpacing: 'clamp(5px, 1vw, 12px)',
     color: '#00ff41',
     textShadow: '0 0 20px rgba(0, 255, 65, 0.4)',
-    margin: '0 0 20px 0'
+    margin: '0 0 20px 0',
+    whiteSpace: 'nowrap'
   },
   separator: {
     width: '100%', height: '1px',
     background: 'linear-gradient(90deg, transparent 0%, #00330d 50%, transparent 100%)',
     opacity: 0.8
   },
-
-  // LOGS AREA
   terminalBox: {
     display: 'flex', flexDirection: 'column',
     alignItems: 'flex-start',
     width: '100%', maxWidth: '750px',
-    minHeight: '300px', // Keeps layout stable
-    gap: '12px'
+    minHeight: '300px',
+    gap: '12px',
+    overflowY: 'auto'
   },
   logRow: {
-    display: 'flex', alignItems: 'center',
-    gap: '12px',
-    fontSize: 'clamp(12px, 3vw, 16px)', // Readable on phone & desktop
+    display: 'flex', alignItems: 'center', gap: '12px',
+    fontSize: 'clamp(12px, 3vw, 16px)',
     lineHeight: '1.4',
     width: '100%',
-    flexWrap: 'wrap' // Wraps text on tiny screens
+    flexWrap: 'wrap'
   },
-  timestamp: { color: '#004d00', fontWeight: 'normal', opacity: 0.8 },
+  timestamp: { color: '#004d00', fontWeight: 'normal', opacity: 0.8, whiteSpace: 'nowrap' },
   dollar: { color: '#00ff41', fontWeight: 'bold' },
-  message: { color: '#00ff41', textShadow: '0 0 5px rgba(0, 255, 65, 0.3)' },
+  message: { color: '#00ff41', textShadow: '0 0 5px rgba(0, 255, 65, 0.3)', wordBreak: 'break-word' },
   cursor: { color: '#00ff41', animation: 'blink 1s step-end infinite', marginLeft: '5px' },
-
-  // FOOTER
+  
   footer: {
     position: 'absolute', bottom: '30px',
     width: '90%', maxWidth: '900px',
@@ -214,11 +213,13 @@ const styles = {
     opacity: 0.3,
     fontSize: 'clamp(10px, 2vw, 12px)',
     fontWeight: 'bold',
-    letterSpacing: '2px'
-  }
+    letterSpacing: '2px',
+    textAlign: 'center'
+  },
+  footerCol: { minWidth: '80px' }
 };
 
-// Global Blink Animation
+// Inject Global Keyframes for Blink
 const styleSheet = document.createElement("style");
 styleSheet.innerText = `
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
