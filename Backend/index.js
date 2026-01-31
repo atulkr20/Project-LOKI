@@ -7,6 +7,7 @@ import { eq, sql } from 'drizzle-orm';
 import { authenticationMiddleware } from './middlewares/auth.middleware.js';
 import userRouter from './routes/user.routes.js';
 import urlRouter from './routes/url.routes.js';
+import trackingRouter from './routes/tracking.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -19,9 +20,12 @@ app.use(cors({
 
 app.use(express.json()); 
 
-// --- 2. PUBLIC ROUTES ---
+// --- 1. PUBLIC ROUTES ---
 app.get('/', (req, res) => res.json({ message: "Loki Server is up" }));
 app.use('/user', userRouter); 
+
+// --- 2. TRACKING ROUTES (Public - anyone clicking links can track) ---
+app.use('/track', trackingRouter);
 
 // --- 3. REDIRECT ROUTE ---
 app.get('/:shortCode', async (req, res) => {

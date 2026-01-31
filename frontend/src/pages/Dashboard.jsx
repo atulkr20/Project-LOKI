@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Terminal, LogOut, ShieldCheck, ChevronRight, 
-  Cpu, Hash, Activity, Check, Copy, AlertTriangle, XCircle 
+  Cpu, Hash, Activity, Check, Copy, AlertTriangle, XCircle, 
+  BarChart2, Eye
 } from "lucide-react";
 
 // --- TOAST COMPONENT ---
@@ -24,6 +25,8 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState([]); 
   const [toast, setToast] = useState(null);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState(null);
   
   // --- LOKI STATES ---
   const [isGlitching, setIsGlitching] = useState(false);
@@ -61,6 +64,25 @@ export default function Dashboard() {
     }
   };
 
+  const fetchAnalytics = async (shortCode) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    
+    try {
+      const response = await fetchWithTimeout(`${BASE_URL}/track/analytics/${shortCode}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setAnalyticsData(data);
+        setShowAnalytics(true);
+      }
+    } catch (error) {
+      console.error("Analytics fetch error:", error.message);
+      showToast("FAILED_TO_FETCH_ANALYTICS", 'error');
+    }
+  };
+
   useEffect(() => {
     fetchHistory();
     const interval = setInterval(() => fetchHistory(), 5000);
@@ -88,11 +110,9 @@ export default function Dashboard() {
       const data = await response.json();
 
       if (response.ok) {
-        // --- TRIGGER GLITCH REVEAL ---
         setIsGlitching(true);
         setTimeout(() => setIsGlitching(false), 200);
 
-        // Point link to frontend scanner route
         const generatedLink = `${window.location.origin}/s/${data.shortCode}`;
         setShortUrl(generatedLink);
         
@@ -122,6 +142,11 @@ export default function Dashboard() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const closeAnalytics = () => {
+    setShowAnalytics(false);
+    setAnalyticsData(null);
+  };
+
   return (
     <div style={styles.pageContainer}>
       {/* GLITCH OVERLAY */}
@@ -130,6 +155,57 @@ export default function Dashboard() {
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <div style={styles.scanline}></div>
       <div style={styles.gridBackground}></div>
+
+      {/* ANALYTICS MODAL */}
+      {showAnalytics && analyticsData && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modal}>
+            <div style={styles.modalHeader}>
+              <h2 style={{margin: 0, color: '#00ff41'}}>📊 BEHAVIORAL_ANALYSIS</h2>
+              <button onClick={closeAnalytics} style={styles.closeButton}>✕</button>
+            </div>
+            
+            <div style={styles.modalContent}>
+              <div style={styles.analyticsSection}>
+                <h3 style={styles.analyticsTitle}>LINK: {analyticsData.shortCode}</h3>
+              </div>
+              
+              <div style={styles.statsGrid}>
+                <div style={styles.statCard}>
+                  <div style={styles.statValue}>{analyticsData.totalArrivals}</div>
+                  <div style={styles.statLabel}>TOTAL ARRIVALS</div>
+                </div>
+                <div style={styles.statCard}>
+                  <div style={{...styles.statValue, color: '#ff0033'}}>{analyticsData.quitRate}</div>
+                  <div style={styles.statLabel}>QUIT RATE</div>
+                </div>
+                <div style={styles.statCard}>
+                  <div style={{...styles.statValue, color: '#00ff41'}}>{analyticsData.completionRate}</div>
+                  <div style={styles.statLabel}>COMPLETION RATE</div>
+                </div>
+              </div>
+
+              <div style={styles.behaviorBreakdown}>
+                <h4 style={styles.sectionTitle}>BEHAVIOR BREAKDOWN</h4>
+                
+                <div style={styles.behaviorRow}>
+                  <span style={styles.behaviorLabel}>🛡️ COMPLETED SCAN</span>
+                  <span style={styles.behaviorValue}>{analyticsData.totalCompleted}</span>
+                </div>
+                <div style={styles.behaviorRow}>
+                  <span style={styles.behaviorLabel}>🚨 QUITS (DID NOT COMPLETE)</span>
+                  <span style={styles.behaviorValue}>{analyticsData.totalQuits}</span>
+                </div>
+              </div>
+
+              <div style={styles.timingInfo}>
+                <div>Completion Rate: {analyticsData.completionRate}</div>
+                <div>Quit Rate: {analyticsData.quitRate}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={styles.window}>
         <header style={styles.header}>
@@ -202,6 +278,22 @@ export default function Dashboard() {
                       </div>
                       <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '11px', wordBreak: 'break-all' }}>{item.shortCode}</div>
                       <div style={{ fontSize: '10px', opacity: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.targetURL}</div>
+                      
+                      {/* Analytics Button */}
+                      <div style={{ display: 'flex', gap: '5px', marginTop: '8px' }}>
+                        <button 
+                          onClick={() => fetchAnalytics(item.shortCode)}
+                          style={styles.analyticsButton}
+                        >
+                          <BarChart2 size={12} /> ANALYZE
+                        </button>
+                        <button 
+                          onClick={() => navigator.clipboard.writeText(`${window.location.origin}/s/${item.shortCode}`)}
+                          style={styles.copyLinkButton}
+                        >
+                          <Copy size={12} />
+                        </button>
+                      </div>
                     </div>
                  ))
                )}
@@ -219,7 +311,7 @@ export default function Dashboard() {
         @keyframes shudder {
           0% { transform: translate(0,0); }
           25% { transform: translate(-5px, 5px) skew(1deg); }
-          50% { transform: translate(5px, -5px) skew(-1deg); }
+          50% { transform: translate(5px, -5px) skew(-deg); }
           100% { transform: translate(0,0); }
         }
         .glitch-overlay {
@@ -266,5 +358,135 @@ const styles = {
   historyList: { flex: 1, overflowY: 'auto', padding: '20px' },
   historyItem: { padding: '10px', border: '1px solid rgba(0, 255, 65, 0.1)', background: 'rgba(0, 0, 0, 0.5)', marginBottom: '10px' },
   hitBadge: { fontSize: '9px', background: 'rgba(0, 255, 65, 0.1)', padding: '2px 4px', borderRadius: '2px', color: '#00ff41' },
-  footerStatus: { padding: '10px', borderTop: '1px solid rgba(0, 255, 65, 0.2)', fontSize: '10px', opacity: 0.5, textAlign: 'center', background: 'rgba(0, 255, 65, 0.05)' }
+  footerStatus: { padding: '10px', borderTop: '1px solid rgba(0, 255, 65, 0.2)', fontSize: '10px', opacity: 0.5, textAlign: 'center', background: 'rgba(0, 255, 65, 0.05)' },
+  
+  // Analytics Button
+  analyticsButton: { 
+    flex: 1, 
+    background: 'rgba(0, 255, 65, 0.1)', 
+    border: '1px solid rgba(0, 255, 65, 0.3)', 
+    color: '#00ff41', 
+    padding: '5px', 
+    fontSize: '10px', 
+    cursor: 'pointer', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    gap: '5px',
+    fontWeight: 'bold'
+  },
+  copyLinkButton: {
+    background: 'rgba(255, 255, 255, 0.05)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    color: '#00ff41',
+    padding: '5px 8px',
+    fontSize: '10px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  
+  // Modal Styles
+  modalOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000
+  },
+  modal: {
+    width: '500px',
+    maxHeight: '80vh',
+    backgroundColor: '#000',
+    border: '1px solid #00ff41',
+    boxShadow: '0 0 30px rgba(0, 255, 65, 0.2)',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  modalHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '15px 20px',
+    borderBottom: '1px solid rgba(0, 255, 65, 0.3)',
+    backgroundColor: 'rgba(0, 255, 65, 0.05)'
+  },
+  closeButton: {
+    background: 'none',
+    border: 'none',
+    color: '#ff0033',
+    fontSize: '20px',
+    cursor: 'pointer'
+  },
+  modalContent: {
+    padding: '20px',
+    overflowY: 'auto'
+  },
+  analyticsSection: {
+    marginBottom: '20px'
+  },
+  analyticsTitle: {
+    fontSize: '14px',
+    color: '#fff',
+    margin: 0
+  },
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '10px',
+    marginBottom: '20px'
+  },
+  statCard: {
+    border: '1px solid rgba(0, 255, 65, 0.2)',
+    padding: '15px',
+    textAlign: 'center',
+    backgroundColor: 'rgba(0, 20, 0, 0.3)'
+  },
+  statValue: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#fff'
+  },
+  statLabel: {
+    fontSize: '10px',
+    opacity: 0.7,
+    marginTop: '5px'
+  },
+  behaviorBreakdown: {
+    border: '1px solid rgba(0, 255, 65, 0.2)',
+    padding: '15px',
+    marginBottom: '15px'
+  },
+  sectionTitle: {
+    fontSize: '12px',
+    color: '#00ff41',
+    margin: '0 0 15px 0',
+    borderBottom: '1px solid rgba(0, 255, 65, 0.2)',
+    paddingBottom: '10px'
+  },
+  behaviorRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: '10px',
+    fontSize: '12px'
+  },
+  behaviorLabel: {
+    color: '#ccc'
+  },
+  behaviorValue: {
+    color: '#00ff41',
+    fontWeight: 'bold'
+  },
+  timingInfo: {
+    fontSize: '10px',
+    opacity: 0.6,
+    textAlign: 'center'
+  }
 };

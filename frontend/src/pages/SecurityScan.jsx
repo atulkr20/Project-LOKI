@@ -5,52 +5,74 @@ const SecurityScan = () => {
   const { shortCode } = useParams();
   const navigate = useNavigate();
   
-  // State
-  const [lines, setLines] = useState([]);      // Completed lines
-  const [currentLine, setCurrentLine] = useState(""); // Currently typing line
+  const [lines, setLines] = useState([]);
+  const [currentLine, setCurrentLine] = useState("");
   const [redirectUrl, setRedirectUrl] = useState(null);
   const [isComplete, setIsComplete] = useState(false);
+  const [timeSpent, setTimeSpent] = useState(0);
   
-  // Refs
   const bottomRef = useRef(null);
   const hasFetched = useRef(false);
+  const startTimeRef = useRef(Date.now());
+  
+  const API_URL = 'http://localhost:8000';
 
-  // 1. THE SCRIPT
   const script = [
     "INITIALIZING SYSTEM SCAN...",
     "ESTABLISHING SECURE CHANNEL...",
     "RESOLVING DESTINATION HOST...",
-    "VERIFYING CRYPTOGRAPHIC HANDSHAKE...",
-    "SYNCHRONIZING UPLINK PROTOCOLS...",
-    "MONITORING USER BEHAVIOR...",
     "SESSION INTEGRITY: ACTIVE",
     "PREPARING REDIRECT..."
   ];
 
-  // 2. FETCH URL (Silent Background Process)
+  const sendTracking = async (eventType) => {
+    const timeSpent = Date.now() - startTimeRef.current;
+    console.log(`[TRACKING] ${eventType}: ${timeSpent}ms`);
+    
+    try {
+      await fetch(`${API_URL}/track/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shortCode, eventType, timeSpent })
+      });
+    } catch (error) {
+      console.error('Tracking failed:', error);
+    }
+  };
+
+  // Fetch URL and track arrival
   useEffect(() => {
     if (hasFetched.current) return;
     hasFetched.current = true;
 
     const fetchUrl = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/url/resolve/${shortCode}`);
+        const res = await fetch(`${API_URL}/url/resolve/${shortCode}`);
         if (res.ok) {
           const data = await res.json();
           setRedirectUrl(data.targetURL);
         } else {
-          // If link not found, wait a moment then go to 404
-          setTimeout(() => navigate("/404"), 2000); 
+          setTimeout(() => navigate("/404"), 2000);
         }
       } catch (err) {
         console.error("Connection failed");
-        // Optional: Stay on page and show red error if backend is down
       }
     };
     fetchUrl();
+
+    // Track arrival
+    sendTracking('arrival');
   }, [shortCode, navigate]);
 
-  // 3. SMOOTH TYPEWRITER ENGINE
+  // Update time display
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeSpent(Date.now() - startTimeRef.current);
+    }, 100);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Typewriter effect
   useEffect(() => {
     let lineIndex = 0;
     let charIndex = 0;
@@ -67,15 +89,13 @@ const SecurityScan = () => {
       charIndex++;
 
       if (charIndex > targetLine.length) {
-        // Line finished
         setLines(prev => [...prev, targetLine]);
         setCurrentLine(""); 
         lineIndex++;
         charIndex = 0;
-        timeoutId = setTimeout(typeChar, 150); // Pause between lines
+        timeoutId = setTimeout(typeChar, 200);
       } else {
-        // Typing next char
-        timeoutId = setTimeout(typeChar, 30); // Typing speed
+        timeoutId = setTimeout(typeChar, 40);
       }
     };
 
@@ -83,30 +103,27 @@ const SecurityScan = () => {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // 4. FINAL REDIRECT
+  // Redirect after completion - track as completed_scan
   useEffect(() => {
     if (isComplete && redirectUrl) {
       setTimeout(() => {
+        sendTracking('completed_scan');
         window.location.href = redirectUrl;
-      }, 800);
+      }, 2000);
     }
   }, [isComplete, redirectUrl]);
 
-  // Auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'auto' });
   }, [currentLine, lines]);
 
   return (
     <div style={styles.container}>
-      
-      {/* HEADER */}
       <div style={styles.header}>
         <h1 style={styles.title}>PROJECT <span style={{color: '#00cc33'}}>_</span> LOKI</h1>
         <div style={styles.separator}></div>
       </div>
 
-      {/* LOG OUTPUT */}
       <div style={styles.terminalBox}>
         {lines.map((line, index) => (
           <div key={index} style={styles.logRow}>
@@ -122,7 +139,6 @@ const SecurityScan = () => {
           </div>
         ))}
         
-        {/* Typing Line */}
         {!isComplete && (
           <div style={styles.logRow}>
             <span className="hidden-mobile" style={styles.timestamp}>[17:00:07]</span>
@@ -135,14 +151,17 @@ const SecurityScan = () => {
         <div ref={bottomRef} />
       </div>
 
-      {/* FOOTER */}
+      <div style={styles.trackingInfo}>
+        <span>TRACKING: ACTIVE</span>
+        <span>TIME: {(timeSpent / 1000).toFixed(1)}s</span>
+      </div>
+
       <div style={styles.footer}>
         <div style={styles.footerCol}>SEC: ALPHA-9</div>
         <div style={styles.footerCol}>ENCRYPTED</div>
         <div style={styles.footerCol}>NODE: LOKI-01</div>
       </div>
 
-      {/* RESPONSIVE HACKS */}
       <style>{`
         @media (max-width: 600px) {
           .hidden-mobile { display: none !important; }
@@ -153,7 +172,6 @@ const SecurityScan = () => {
   );
 };
 
-// --- RESPONSIVE STYLES ---
 const styles = {
   container: {
     height: '100vh', width: '100vw',
@@ -206,6 +224,16 @@ const styles = {
   message: { color: '#00ff41', textShadow: '0 0 5px rgba(0, 255, 65, 0.3)', wordBreak: 'break-word' },
   cursor: { color: '#00ff41', animation: 'blink 1s step-end infinite', marginLeft: '5px' },
   
+  trackingInfo: {
+    marginTop: '20px',
+    display: 'flex',
+    gap: '20px',
+    fontSize: '12px',
+    opacity: 0.6,
+    border: '1px solid #00330d',
+    padding: '10px 20px'
+  },
+  
   footer: {
     position: 'absolute', bottom: '30px',
     width: '90%', maxWidth: '900px',
@@ -219,7 +247,6 @@ const styles = {
   footerCol: { minWidth: '80px' }
 };
 
-// Inject Global Keyframes for Blink
 const styleSheet = document.createElement("style");
 styleSheet.innerText = `
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
