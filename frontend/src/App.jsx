@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import SecurityScan from './pages/SecurityScan';
 import NotFound from './pages/NotFound';
 
+
 function App() {
   return (
     // The "scanlines" class adds the CRT effect to the whole app
