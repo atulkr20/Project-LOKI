@@ -10,29 +10,36 @@
   
   body {
     @apply bg-[#050505] text-[#00ff41] overflow-x-hidden;
-    /* Removed problematic font-mono from here */
+    /* Enforce Terminal Font Globally */
+    font-family: 'Courier New', Courier, monospace;
+    
+    /* Base CRT Texture (Subtle static) */
     background-image: 
       linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
       linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
     background-size: 100% 2px, 3px 100%;
+    
+    /* Optional: Uncomment this line if you want the ENTIRE website to flicker slightly */
+    /* animation: flicker 0.15s infinite; */
   }
 }
+
+/* --- EXISTING EFFECTS --- */
 
 /* GLOW EFFECTS */
 .text-glow {
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 2px rgba(0, 255, 65, 0.3);
 }
 
-/* --- FIX IS HERE --- */
-/* We use standard CSS instead of @apply for transparency to fix the error */
+/* TERMINAL BORDER FIX */
 .terminal-border {
-  border: 1px solid rgba(0, 255, 65, 0.2); /* Replaces border-[#00ff41]/20 */
-  background-color: rgba(0, 0, 0, 0.4);   /* Replaces bg-black/40 */
-  backdrop-filter: blur(4px);             /* Replaces backdrop-blur-sm */
+  border: 1px solid rgba(0, 255, 65, 0.2); 
+  background-color: rgba(0, 0, 0, 0.4);   
+  backdrop-filter: blur(4px);            
   box-shadow: 0 0 15px rgba(0, 255, 65, 0.05);
 }
 
-/* SCANLINE ANIMATION */
+/* SCANLINE ANIMATION (Global) */
 .scanline {
   width: 100%;
   height: 100px;
@@ -56,4 +63,61 @@
   background-image:
     linear-gradient(to right, rgba(0, 255, 65, 0.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(0, 255, 65, 0.05) 1px, transparent 1px);
+}
+
+/* --- NEW CRT ADDITIONS --- */
+
+/* 1. CUSTOM MATRIX SCROLLBAR */
+/* This makes the scrollbar inside the Security Scan logs look like part of the OS */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000; 
+  border-left: 1px solid rgba(0, 255, 65, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00ff41; 
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00cc33; 
+  box-shadow: 0 0 10px #00ff41;
+}
+
+/* 2. CRT FLICKER ANIMATION */
+/* Use this class on containers to give them that 'unstable monitor' vibe */
+.crt-flicker {
+  animation: flicker 0.15s infinite;
+  opacity: 0.97;
+  pointer-events: none; /* Allows clicking through if used as an overlay */
+}
+
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  5% { opacity: 0.95; }
+  10% { opacity: 0.9; }
+  15% { opacity: 0.95; }
+  20% { opacity: 0.99; }
+  50% { opacity: 0.95; }
+  55% { opacity: 0.9; }
+  60% { opacity: 0.95; }
+  80% { opacity: 0.9; }
+  100% { opacity: 0.98; }
+}
+
+/* 3. LOG FADE-IN */
+/* Makes new lines of text appear smoothly */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }

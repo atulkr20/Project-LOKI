@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import SecurityScan from './pages/SecurityScan';
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
           <Route path="/signup" element={<Signup />} />
 
           <Route path="/dashboard" element={<Dashboard/>} />
+
+          <Route path="/s/:shortCode" element={<SecurityScan />} />
         </Routes>
       </BrowserRouter>
     </div>
