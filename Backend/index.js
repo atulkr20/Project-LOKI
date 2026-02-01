@@ -12,6 +12,9 @@ import trackingRouter from './routes/tracking.routes.js';
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 // Updated CORS to be more specific for Vite
 app.use(cors({
     origin: "http://localhost:5173", 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Terminal, User, Mail, Lock, ChevronRight, Cpu, ArrowRight, ShieldCheck, AlertTriangle, Check, XCircle } from 'lucide-react';
+import API_URL from '../config/api';
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const timer = setTimeout(onClose, 3000); return () => clearTimeout(timer); }, [onClose]);
@@ -33,7 +34,7 @@ export default function Signup() {
     const payload = { firstName, lastName, email: formData.email, password: formData.password };
 
     try {
-      const response = await fetch('http://localhost:8000/user/signup', {
+      const response = await fetch(`${API_URL}/user/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

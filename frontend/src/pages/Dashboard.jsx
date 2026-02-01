@@ -5,6 +5,7 @@ import {
   Cpu, Hash, Activity, Check, Copy, AlertTriangle, XCircle, 
   BarChart2, Eye
 } from "lucide-react";
+import API_URL from '../config/api';
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const timer = setTimeout(onClose, 3000); return () => clearTimeout(timer); }, [onClose]);
@@ -29,7 +30,7 @@ export default function Dashboard() {
   const [isGlitching, setIsGlitching] = useState(false);
 
   const showToast = (message, type = 'success') => setToast({ message, type });
-  const BASE_URL = "http://localhost:8000";
+  const BASE_URL = API_URL;
 
   const fetchWithTimeout = async (url, options, timeout = 15000) => {
     const controller = new AbortController();

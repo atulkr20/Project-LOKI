@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import API_URL from '../config/api';
 
 const SecurityScan = () => {
   const { shortCode } = useParams();
@@ -15,7 +16,7 @@ const SecurityScan = () => {
   const hasFetched = useRef(false);
   const startTimeRef = useRef(Date.now());
   
-  const API_URL = 'http://localhost:8000';
+  const API_URL_CONST = API_URL;
 
   const script = [
     "INITIALIZING SYSTEM SCAN...",
@@ -30,7 +31,7 @@ const SecurityScan = () => {
     console.log(`[TRACKING] ${eventType}: ${timeSpent}ms`);
     
     try {
-      await fetch(`${API_URL}/track/event`, {
+      await fetch(`${API_URL_CONST}/track/event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shortCode, eventType, timeSpent })
@@ -47,7 +48,7 @@ const SecurityScan = () => {
 
     const fetchUrl = async () => {
       try {
-        const res = await fetch(`${API_URL}/url/resolve/${shortCode}`);
+        const res = await fetch(`${API_URL_CONST}/url/resolve/${shortCode}`);
         if (res.ok) {
           const data = await res.json();
           setRedirectUrl(data.targetURL);
