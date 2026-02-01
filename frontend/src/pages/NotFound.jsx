@@ -6,7 +6,6 @@ const NotFound = () => {
   const navigate = useNavigate();
   const [dots, setDots] = useState("");
 
-  // Simple animation for the "TRACING IP" text
   useEffect(() => {
     const interval = setInterval(() => {
       setDots(prev => prev.length < 3 ? prev + "." : "");
@@ -17,13 +16,11 @@ const NotFound = () => {
   return (
     <div style={styles.container}>
       
-      {/* GLITCH HEADER */}
       <div className="glitch-wrapper" style={{ marginBottom: '40px' }}>
         <h1 style={styles.errorCode}>404</h1>
         <div style={styles.errorText}>SYSTEM_FAILURE</div>
       </div>
 
-      {/* ERROR LOGS */}
       <div style={styles.terminalBox}>
         <div style={styles.logRow}>
           <span style={styles.timestamp}>[CRITICAL]</span>
@@ -41,13 +38,11 @@ const NotFound = () => {
         </div>
       </div>
 
-      {/* ACTION BUTTON */}
       <button onClick={() => navigate('/')} style={styles.button}>
         <Lock size={14} />
         <span>RETURN_TO_SAFETY</span>
       </button>
 
-      {/* FOOTER */}
       <div style={styles.footer}>
         <span>ERR_CODE: ID_10_T</span>
         <span>NO_ESCAPE</span>
@@ -60,15 +55,14 @@ const NotFound = () => {
   );
 };
 
-// --- STYLES (MATCHING THEME BUT RED) ---
 const styles = {
   container: {
     height: '100vh', width: '100vw',
-    backgroundColor: '#050000', // Very dark red-black
+    backgroundColor: '#050000',
     display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center',
     fontFamily: '"Consolas", "Monaco", monospace',
-    color: '#ff0033', // LOKI RED
+    color: '#ff0033',
     position: 'relative',
     overflow: 'hidden'
   },
@@ -100,8 +94,8 @@ const styles = {
     fontSize: 'clamp(12px, 2.5vw, 14px)',
     fontFamily: 'monospace'
   },
-  timestamp: { color: '#800000', fontWeight: 'bold' }, // Dark Red
-  message: { color: '#ff4d6a' }, // Pinkish Red
+  timestamp: { color: '#800000', fontWeight: 'bold' },
+  message: { color: '#ff4d6a' },
   
   button: {
     marginTop: '50px',

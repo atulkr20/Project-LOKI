@@ -59,8 +59,6 @@ const SecurityScan = () => {
       }
     };
     fetchUrl();
-
-    // Track arrival
     sendTracking('arrival');
   }, [shortCode, navigate]);
 
@@ -72,7 +70,6 @@ const SecurityScan = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Typewriter effect
   useEffect(() => {
     let lineIndex = 0;
     let charIndex = 0;
@@ -103,7 +100,6 @@ const SecurityScan = () => {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // Redirect after completion - track as completed_scan
   useEffect(() => {
     if (isComplete && redirectUrl) {
       setTimeout(() => {

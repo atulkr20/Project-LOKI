@@ -6,7 +6,6 @@ import {
   BarChart2, Eye
 } from "lucide-react";
 
-// --- TOAST COMPONENT ---
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const timer = setTimeout(onClose, 3000); return () => clearTimeout(timer); }, [onClose]);
   const isError = type === 'error';
@@ -27,8 +26,6 @@ export default function Dashboard() {
   const [toast, setToast] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [analyticsData, setAnalyticsData] = useState(null);
-  
-  // --- LOKI STATES ---
   const [isGlitching, setIsGlitching] = useState(false);
 
   const showToast = (message, type = 'success') => setToast({ message, type });
@@ -149,14 +146,12 @@ export default function Dashboard() {
 
   return (
     <div style={styles.pageContainer}>
-      {/* GLITCH OVERLAY */}
       {isGlitching && <div className="glitch-overlay" />}
       
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <div style={styles.scanline}></div>
       <div style={styles.gridBackground}></div>
 
-      {/* ANALYTICS MODAL */}
       {showAnalytics && analyticsData && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
@@ -219,7 +214,6 @@ export default function Dashboard() {
         </header>
 
         <div style={styles.body}>
-          {/* LEFT: INPUT */}
           <div style={styles.leftPanel}>
             <div style={styles.bgIcon}><ShieldCheck size={200} /></div>
             <div style={{ position: 'relative', zIndex: 10, width: '100%' }}>
@@ -258,7 +252,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* RIGHT: HISTORY LOGS */}
           <div style={styles.rightPanel}>
             <div style={styles.statsHeader}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#00ff41' }}>
@@ -359,8 +352,6 @@ const styles = {
   historyItem: { padding: '10px', border: '1px solid rgba(0, 255, 65, 0.1)', background: 'rgba(0, 0, 0, 0.5)', marginBottom: '10px' },
   hitBadge: { fontSize: '9px', background: 'rgba(0, 255, 65, 0.1)', padding: '2px 4px', borderRadius: '2px', color: '#00ff41' },
   footerStatus: { padding: '10px', borderTop: '1px solid rgba(0, 255, 65, 0.2)', fontSize: '10px', opacity: 0.5, textAlign: 'center', background: 'rgba(0, 255, 65, 0.05)' },
-  
-  // Analytics Button
   analyticsButton: { 
     flex: 1, 
     background: 'rgba(0, 255, 65, 0.1)', 
@@ -386,8 +377,6 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center'
   },
-  
-  // Modal Styles
   modalOverlay: {
     position: 'fixed',
     top: 0,

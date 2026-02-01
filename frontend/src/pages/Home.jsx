@@ -4,19 +4,14 @@ import { Terminal } from 'lucide-react';
 
 const Home = () => {
   const navigate = useNavigate();
-  // Live Time State (24h format like 12:44:02)
   const [time, setTime] = useState(new Date().toLocaleTimeString('en-GB', { hour12: false }));
   const [nodes, setNodes] = useState(1248);
 
-  // Live Clock & Stats Ticker
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
-      // Format: HH:MM:SS.ms
       const timeString = now.toLocaleTimeString('en-GB', { hour12: false }) + "." + Math.floor(now.getMilliseconds() / 10).toString().padStart(2, '0');
       setTime(timeString);
-      
-      // Randomly fluctuate active nodes to make it look "alive"
       if (Math.random() > 0.9) setNodes(n => n + (Math.random() > 0.5 ? 1 : -1));
     }, 50);
     return () => clearInterval(timer);
@@ -25,13 +20,11 @@ const Home = () => {
   return (
     <div style={styles.page}>
       
-      {/* 1. BACKGROUND FX */}
       <div style={styles.gridBackground}></div>
       <div style={styles.vignette}></div>
 
       <div style={styles.container}>
         
-        {/* 2. HEADER SECTION (Icon + Title + Status) */}
         <div style={styles.iconBox}>
           <Terminal size={48} color="#00ff41" strokeWidth={2} />
         </div>
@@ -43,7 +36,6 @@ const Home = () => {
           <span style={styles.statusText}>SYSTEM STATUS: ONLINE</span>
         </div>
 
-        {/* 3. STATS DASHBOARD (3 Boxes) */}
         <div style={styles.statsContainer}>
           <div style={styles.statBox}>
             <div style={styles.statLabel}>ACTIVE NODES</div>
@@ -59,18 +51,15 @@ const Home = () => {
           </div>
         </div>
 
-        {/* 4. HERO TEXT + RED WARNING */}
         <div style={styles.heroTextContainer}>
           <p style={styles.heroLine}>Every click leaves a signal.</p>
           <p style={styles.heroLine}>Observe behavior. Not just traffic.</p>
           
-          {/* Red Warning Box */}
           <div style={styles.redWarningBox}>
              <span style={styles.blink}>&gt;</span> ACCESS_IS_MONITORED.
           </div>
         </div>
 
-        {/* 5. ACTIONS (Clear & Direct) */}
         <div style={styles.actionRow}>
           <button onClick={() => navigate('/signup')} style={styles.btn}>
             [ CREATE_ACCOUNT ]
@@ -80,7 +69,6 @@ const Home = () => {
           </button>
         </div>
 
-        {/* 6. INFO GRID (With Outlined Boxes) */}
         <div style={styles.infoGrid}>
           <div style={styles.infoBox}>
             <h3 style={styles.colHeader}>### BEHAVIOR_ANALYSIS</h3>
@@ -98,12 +86,10 @@ const Home = () => {
 
       </div>
 
-      {/* 7. FOOTER */}
       <footer style={styles.footer}>
         Project Loki // Zero-Day Redirection // v2.0.4
       </footer>
 
-      {/* Global Animations */}
       <style>{`
         button:hover { 
           background: #00ff41 !important; 
@@ -117,7 +103,6 @@ const Home = () => {
   );
 };
 
-// --- STYLES ---
 const styles = {
   page: {
     minHeight: '100vh', width: '100vw',
@@ -146,8 +131,6 @@ const styles = {
     padding: '60px 20px',
     boxSizing: 'border-box'
   },
-
-  // Header Elements
   iconBox: {
     border: '2px solid #00ff41', padding: '15px', borderRadius: '4px',
     marginBottom: '20px', boxShadow: '0 0 15px rgba(0, 255, 65, 0.2)',
@@ -167,8 +150,6 @@ const styles = {
   statusText: {
     fontSize: '12px', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase'
   },
-
-  // Stats Grid
   statsContainer: {
     display: 'flex', justifyContent: 'center', gap: '20px', width: '100%', marginBottom: '50px', flexWrap: 'wrap'
   },
@@ -182,8 +163,6 @@ const styles = {
   statValue: {
     fontSize: '24px', fontWeight: 'bold', color: '#fff', textShadow: '0 0 10px rgba(255, 255, 255, 0.3)'
   },
-
-  // Hero & Warning
   heroTextContainer: {
     textAlign: 'center', marginBottom: '50px', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center'
   },

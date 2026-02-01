@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Terminal, Mail, Lock, ChevronRight, Cpu, ArrowRight, ShieldAlert, AlertTriangle, Check, XCircle } from 'lucide-react';
 
-// --- CUSTOM TOAST COMPONENT ---
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const timer = setTimeout(onClose, 3000); return () => clearTimeout(timer); }, [onClose]);
   const isError = type === 'error';
@@ -37,11 +36,10 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // Save Token
         localStorage.setItem('token', data.token);
         
         showToast("ACCESS GRANTED. WELCOME BACK, OPERATOR.");
-        setTimeout(() => navigate('/dashboard'), 1500); // Small delay to read the message
+        setTimeout(() => navigate('/dashboard'), 1500);
       } else {
         showToast(data.error || "INVALID CREDENTIALS", 'error');
         setLoading(false);
@@ -59,14 +57,12 @@ export default function Login() {
       <div style={styles.scanline}></div>
       <div style={styles.gridBackground}></div>
 
-      {/* HEADER */}
       <div style={styles.brandingSection}>
         <div style={styles.logoBox}><Terminal size={40} color="#00ff41" /></div>
         <h1 style={styles.mainTitle}>PROJECT LOKI</h1>
         <p style={styles.subTitle}>SECURE_ACCESS_TERMINAL_V2.0.4</p>
       </div>
 
-      {/* LOGIN CARD */}
       <div style={styles.window}>
         <div style={styles.cardHeader}>
             <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
@@ -100,7 +96,6 @@ export default function Login() {
   );
 }
 
-// --- EXACT STYLES ---
 const styles = {
   pageContainer: { height: '100vh', width: '100vw', backgroundColor: '#020202', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: '"Courier New", Courier, monospace', color: '#00ff41', overflow: 'hidden', position: 'relative' },
   gridBackground: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px)', backgroundSize: '30px 30px', pointerEvents: 'none' },

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Terminal, User, Mail, Lock, ChevronRight, Cpu, ArrowRight, ShieldCheck, AlertTriangle, Check, XCircle } from 'lucide-react';
 
-// --- CUSTOM TOAST COMPONENT ---
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const timer = setTimeout(onClose, 3000); return () => clearTimeout(timer); }, [onClose]);
   const isError = type === 'error';
@@ -90,7 +89,7 @@ export default function Signup() {
   );
 }
 
-// STYLES (Kept exactly same)
+// Styles
 const styles = {
   pageContainer: { height: '100vh', width: '100vw', backgroundColor: '#020202', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: '"Courier New", Courier, monospace', color: '#00ff41', overflow: 'hidden', position: 'relative' },
   gridBackground: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px)', backgroundSize: '30px 30px', pointerEvents: 'none' },
