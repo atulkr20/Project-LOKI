@@ -1,10 +1,8 @@
-// API Configuration - uses environment variable in production, localhost in development
-// For Vercel deployment, set VITE_API_URL in Vercel environment variables
+// src/config/api.js
 
 const getApiUrl = () => {
-  // Check for environment variable (Vite uses VITE_ prefix)
-  if (import.meta.env?.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+  if (import.meta.env?.VITE_BACKEND_URL) {
+    return import.meta.env.VITE_BACKEND_URL;
   }
   
   // Fallback to localhost for development
