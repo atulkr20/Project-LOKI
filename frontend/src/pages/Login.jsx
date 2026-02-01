@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Terminal, Mail, Lock, ChevronRight, Cpu, ArrowRight, ShieldAlert, AlertTriangle, Check, XCircle } from 'lucide-react';
 import API_URL from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const timer = setTimeout(onClose, 3000); return () => clearTimeout(timer); }, [onClose]);
@@ -15,6 +16,7 @@ const Toast = ({ message, type, onClose }) => {
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
@@ -37,7 +39,7 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('token', data.token);
+        login(data.token);
         
         showToast("ACCESS GRANTED. WELCOME BACK, OPERATOR.");
         setTimeout(() => navigate('/dashboard'), 1500);

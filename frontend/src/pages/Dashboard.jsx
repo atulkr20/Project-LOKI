@@ -6,6 +6,7 @@ import {
   BarChart2, Eye
 } from "lucide-react";
 import API_URL from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const timer = setTimeout(onClose, 3000); return () => clearTimeout(timer); }, [onClose]);
@@ -19,6 +20,7 @@ const Toast = ({ message, type, onClose }) => {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [longUrl, setLongUrl] = useState("");
   const [shortUrl, setShortUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -88,7 +90,7 @@ export default function Dashboard() {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    logout();
     navigate("/login");
   };
 
